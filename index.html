@@ -136,6 +136,21 @@
       background: linear-gradient(180deg, transparent 55%, rgba(7, 16, 13, .88));
     }
 
+    .hero::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: -35%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(185, 232, 123, .14), transparent 34%);
+      animation: heroGlow 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroGlow {
+      from { transform: translate3d(-9%, -5%, 0) scale(.9); opacity: .45; }
+      to { transform: translate3d(18%, 10%, 0) scale(1.14); opacity: .85; }
+    }
+
     .hero-content { position: relative; z-index: 1; max-width: 640px; }
     h1 {
       margin: 20px 0 18px;
@@ -204,7 +219,10 @@
       object-fit: cover;
       object-position: center 38%;
       filter: saturate(.92) contrast(1.02);
+      transition: transform .8s cubic-bezier(.2,.75,.2,1), filter .5s ease;
     }
+
+    .agent:hover img { transform: scale(1.035); filter: saturate(1) contrast(1.04); }
 
     .agent.silka img { object-position: center 52%; }
     .agent-copy {
@@ -261,12 +279,25 @@
     }
 
     .progress-fill {
+      position: relative;
+      overflow: hidden;
       width: 0;
       height: 100%;
       border-radius: inherit;
       background: linear-gradient(90deg, var(--mint), var(--lime));
       transition: width .35s ease;
     }
+
+    .progress-fill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-120%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+      animation: progressShine 2.8s ease-in-out infinite;
+    }
+
+    @keyframes progressShine { 55%, 100% { transform: translateX(140%); } }
 
     .quest-list { display: grid; gap: 12px; }
     .quest {
@@ -297,6 +328,8 @@
     }
 
     .quest.done .quest-check { border-color: var(--mint); background: var(--mint); }
+    .quest.just-done .quest-check { animation: checkPop .34s cubic-bezier(.2,1.7,.4,1); }
+    @keyframes checkPop { 45% { transform: scale(1.28) rotate(-5deg); } }
     .quest.done .quest-check::after {
       content: "";
       position: absolute;
@@ -374,11 +407,13 @@
       color: #eaf4ee;
       background: rgba(185, 232, 123, .08);
       font-weight: 800;
+      text-decoration: none;
       cursor: pointer;
       transition: transform .2s ease, background .2s ease;
     }
 
     .button:hover { transform: translateY(-1px); background: rgba(185, 232, 123, .13); }
+    .button:active { transform: translateY(0) scale(.98); }
     .button.primary { color: #0b180f; border: 0; background: linear-gradient(135deg, var(--lime), var(--mint)); }
     .button.primary:hover { background: linear-gradient(135deg, #c8f58d, #87e8c0); }
 
@@ -599,6 +634,8 @@
 
     @keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.98); } }
     .modal-card img { width: 100%; height: 250px; object-fit: cover; object-position: center 42%; }
+    .modal.open .modal-card img { animation: successZoom 5s ease-out both; }
+    @keyframes successZoom { from { transform: scale(1.06); } to { transform: scale(1); } }
     .modal-copy { padding: 25px; text-align: center; }
     .modal-copy h2 { margin: 0 0 8px; font-size: 32px; letter-spacing: -.045em; }
     .modal-copy p { margin: 0 0 20px; color: var(--muted); }
@@ -607,12 +644,43 @@
     .shake { animation: shake .35s ease; }
     @keyframes shake { 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
 
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      filter: blur(5px);
+      transition:
+        opacity .7s ease var(--reveal-delay, 0ms),
+        transform .7s cubic-bezier(.2,.75,.2,1) var(--reveal-delay, 0ms),
+        filter .7s ease var(--reveal-delay, 0ms);
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+    .quest.reveal.visible:hover { transform: translateY(-2px); }
+
+    .xp.bump, .rank-score.bump { animation: scoreBump .38s cubic-bezier(.2,1.6,.4,1); }
+    @keyframes scoreBump { 50% { transform: scale(1.16); color: #fff; } }
+
+    .confetti {
+      position: fixed;
+      z-index: 80;
+      top: -18px;
+      width: 8px;
+      height: 14px;
+      border-radius: 3px;
+      pointer-events: none;
+      animation: confettiFall var(--fall-time) cubic-bezier(.2,.65,.4,1) forwards;
+    }
+
+    @keyframes confettiFall {
+      to { transform: translate3d(var(--drift), 110vh, 0) rotate(var(--spin)); opacity: .15; }
+    }
+
     @media (max-width: 820px) {
       .shell { width: min(100% - 22px, 720px); padding-top: 12px; }
       .topbar { padding-bottom: 16px; }
       .top-date { display: none; }
       .hero { min-height: 620px; padding: 34px 24px; background-position: 58% 50%; }
-      .hero::before { content: ""; position: absolute; inset: 0; background: rgba(4, 12, 8, .18); }
+      .hero::before { inset: -30%; background: radial-gradient(circle, rgba(185, 232, 123, .13), rgba(4, 12, 8, .08) 45%, transparent 65%); }
       .grid-2, .departure, .sos { grid-template-columns: 1fr; }
       .section-head { grid-template-columns: 1fr; }
       .progress-card { min-width: 0; }
@@ -869,7 +937,7 @@
       </div>
 
       <aside class="dishwasher">
-        <div><h3>Посудомойка: видеопротокол</h3><p>Грязные миски можно складывать внутрь. Если понадобится запустить мойку — короткая инструкция справа.</p></div>
+        <div><h3>Посудомойка: видеопротокол</h3><p>Грязные миски можно складывать внутрь. Если понадобится запустить мойку — воспользуйся короткой видеоинструкцией.</p></div>
         <video class="dishwasher-video" controls playsinline preload="metadata" poster="assets/dishwasher-poster.jpg">
           <source src="assets/dishwasher.mp4" type="video/mp4">
           Браузер не смог открыть видео. Напиши Саше — он пришлёт инструкцию отдельно.
@@ -891,8 +959,8 @@
           <p>Если с Силкой или Арчи произошло что-нибудь нехорошее или просто подозрительное — сразу сообщи Саше. Лучше написать лишний раз.</p>
           <div class="sos-rule">Сообщать Александру Суббота. Лиле не писать — бережём её нервную систему.</div>
           <div class="sos-actions">
-            <button class="button primary" id="shareSos" type="button">Подготовить сообщение Саше</button>
-            <button class="button" id="copySos" type="button">Скопировать текст</button>
+            <a class="button primary" id="telegramSos" href="https://t.me/subbota_ok" target="_blank" rel="noreferrer">Написать Саше в Telegram</a>
+            <button class="button" id="copySos" type="button">Только скопировать шаблон</button>
           </div>
         </div>
         <img src="assets/silka-sleep.jpg" alt="Силка сидит с закрытыми глазами">
@@ -975,7 +1043,19 @@
           setQuestVisual(quest, state.checked[key]);
           save();
           updateProgress();
-          if (state.checked[key]) showToast(quest.dataset.group === 'exit' ? 'Проверка подтверждена' : 'Квест выполнен: +10 XP');
+          if (state.checked[key]) {
+            quest.classList.remove('just-done');
+            void quest.offsetWidth;
+            quest.classList.add('just-done');
+            setTimeout(() => quest.classList.remove('just-done'), 420);
+            if (navigator.vibrate) navigator.vibrate(18);
+            const score = document.getElementById('xpScore');
+            score.classList.remove('bump');
+            void score.offsetWidth;
+            score.classList.add('bump');
+            setTimeout(() => score.classList.remove('bump'), 450);
+            showToast(quest.dataset.group === 'exit' ? 'Проверка подтверждена' : 'Квест выполнен: +10 XP');
+          }
         };
         quest.addEventListener('click', toggle);
         quest.addEventListener('keydown', (event) => {
@@ -1062,6 +1142,7 @@
           return;
         }
         modal.classList.add('open');
+        fireConfetti();
       });
 
       const closeModal = () => modal.classList.remove('open');
@@ -1086,12 +1167,45 @@
       };
 
       document.getElementById('copySos').addEventListener('click', copyText);
-      document.getElementById('shareSos').addEventListener('click', async () => {
-        if (navigator.share) {
-          try { await navigator.share({ title: 'Сообщение Саше', text: sosText }); return; } catch (_) {}
-        }
-        await copyText();
+      document.getElementById('telegramSos').addEventListener('click', () => {
+        copyText();
       });
+
+      const revealTargets = [...document.querySelectorAll('.agent, .quest, .side-quest, .rank-card, .periodic, .bath-card, .dishwasher, .sos')];
+      revealTargets.forEach((element, index) => {
+        element.classList.add('reveal');
+        element.style.setProperty('--reveal-delay', `${(index % 5) * 55}ms`);
+      });
+
+      if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const revealObserver = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+          });
+        }, { rootMargin: '0px 0px -7% 0px', threshold: .08 });
+        revealTargets.forEach(element => revealObserver.observe(element));
+      } else {
+        revealTargets.forEach(element => element.classList.add('visible'));
+      }
+
+      function fireConfetti() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const colors = ['#b9e87b', '#75d8b0', '#f2bf62', '#eb8a54'];
+        for (let i = 0; i < 24; i += 1) {
+          const piece = document.createElement('i');
+          piece.className = 'confetti';
+          piece.style.left = `${Math.random() * 100}vw`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.setProperty('--drift', `${(Math.random() - .5) * 240}px`);
+          piece.style.setProperty('--spin', `${360 + Math.random() * 720}deg`);
+          piece.style.setProperty('--fall-time', `${2.4 + Math.random() * 1.7}s`);
+          piece.style.animationDelay = `${Math.random() * .35}s`;
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 4700);
+        }
+      }
 
       const sections = [...document.querySelectorAll('section[id], header[id]')];
       const navLinks = [...document.querySelectorAll('.bottom-nav a')];
